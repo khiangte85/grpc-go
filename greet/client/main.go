@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -25,10 +26,10 @@ func main() {
 
 	c := pb.NewGreetServiceClient(conn)
 
-	doGreet(c)
-	doGreetManyTimes(c)
+	// doGreet(c)
+	// doGreetManyTimes(c)
+	doLongGreet(c)
 }
-
 
 func doGreet(c pb.GreetServiceClient) {
 	res, err := c.Greet(context.Background(), &pb.GreetRequest{
@@ -42,7 +43,7 @@ func doGreet(c pb.GreetServiceClient) {
 	log.Println(res)
 }
 
-func doGreetManyTimes(c pb.GreetServiceClient){
+func doGreetManyTimes(c pb.GreetServiceClient) {
 	stream, err := c.GreetManyTimes(context.Background(), &pb.GreetRequest{
 		FirstName: "Lalmuanawma",
 	})
@@ -64,4 +65,31 @@ func doGreetManyTimes(c pb.GreetServiceClient){
 
 		fmt.Println(msg)
 	}
+}
+
+func doLongGreet(c pb.GreetServiceClient) {
+	reqs := []*pb.GreetRequest{
+		{FirstName: "Awmtea"},
+		{FirstName: "Tei"},
+		{FirstName: "Sawmsawmi"},
+	}
+
+	stream, err := c.LongGreet(context.Background())
+
+	if err != nil {
+		log.Fatalf("error calling long greet: %v", err)
+	}
+
+	for _, req := range reqs {
+		stream.Send(req)
+		time.Sleep(time.Second * 2)
+	}
+
+	res, err := stream.CloseAndRecv()
+
+	if err != nil {
+		log.Fatalf("Stream error: %v", err)
+	}
+
+	fmt.Println(res)
 }
