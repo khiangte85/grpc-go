@@ -18,86 +18,86 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// GreeServiceClient is the client API for GreeService service.
+// GreetServiceClient is the client API for GreetService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type GreeServiceClient interface {
+type GreetServiceClient interface {
 	Greet(ctx context.Context, in *GreetRequest, opts ...grpc.CallOption) (*GreetResponse, error)
 }
 
-type greeServiceClient struct {
+type greetServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewGreeServiceClient(cc grpc.ClientConnInterface) GreeServiceClient {
-	return &greeServiceClient{cc}
+func NewGreetServiceClient(cc grpc.ClientConnInterface) GreetServiceClient {
+	return &greetServiceClient{cc}
 }
 
-func (c *greeServiceClient) Greet(ctx context.Context, in *GreetRequest, opts ...grpc.CallOption) (*GreetResponse, error) {
+func (c *greetServiceClient) Greet(ctx context.Context, in *GreetRequest, opts ...grpc.CallOption) (*GreetResponse, error) {
 	out := new(GreetResponse)
-	err := c.cc.Invoke(ctx, "/greet.GreeService/Greet", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/greet.GreetService/Greet", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// GreeServiceServer is the server API for GreeService service.
-// All implementations must embed UnimplementedGreeServiceServer
+// GreetServiceServer is the server API for GreetService service.
+// All implementations must embed UnimplementedGreetServiceServer
 // for forward compatibility
-type GreeServiceServer interface {
+type GreetServiceServer interface {
 	Greet(context.Context, *GreetRequest) (*GreetResponse, error)
-	mustEmbedUnimplementedGreeServiceServer()
+	mustEmbedUnimplementedGreetServiceServer()
 }
 
-// UnimplementedGreeServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedGreeServiceServer struct {
+// UnimplementedGreetServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedGreetServiceServer struct {
 }
 
-func (UnimplementedGreeServiceServer) Greet(context.Context, *GreetRequest) (*GreetResponse, error) {
+func (UnimplementedGreetServiceServer) Greet(context.Context, *GreetRequest) (*GreetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Greet not implemented")
 }
-func (UnimplementedGreeServiceServer) mustEmbedUnimplementedGreeServiceServer() {}
+func (UnimplementedGreetServiceServer) mustEmbedUnimplementedGreetServiceServer() {}
 
-// UnsafeGreeServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to GreeServiceServer will
+// UnsafeGreetServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to GreetServiceServer will
 // result in compilation errors.
-type UnsafeGreeServiceServer interface {
-	mustEmbedUnimplementedGreeServiceServer()
+type UnsafeGreetServiceServer interface {
+	mustEmbedUnimplementedGreetServiceServer()
 }
 
-func RegisterGreeServiceServer(s grpc.ServiceRegistrar, srv GreeServiceServer) {
-	s.RegisterService(&GreeService_ServiceDesc, srv)
+func RegisterGreetServiceServer(s grpc.ServiceRegistrar, srv GreetServiceServer) {
+	s.RegisterService(&GreetService_ServiceDesc, srv)
 }
 
-func _GreeService_Greet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _GreetService_Greet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GreetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GreeServiceServer).Greet(ctx, in)
+		return srv.(GreetServiceServer).Greet(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/greet.GreeService/Greet",
+		FullMethod: "/greet.GreetService/Greet",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GreeServiceServer).Greet(ctx, req.(*GreetRequest))
+		return srv.(GreetServiceServer).Greet(ctx, req.(*GreetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// GreeService_ServiceDesc is the grpc.ServiceDesc for GreeService service.
+// GreetService_ServiceDesc is the grpc.ServiceDesc for GreetService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var GreeService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "greet.GreeService",
-	HandlerType: (*GreeServiceServer)(nil),
+var GreetService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "greet.GreetService",
+	HandlerType: (*GreetServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Greet",
-			Handler:    _GreeService_Greet_Handler,
+			Handler:    _GreetService_Greet_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
