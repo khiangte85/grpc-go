@@ -31,3 +31,19 @@ func main() {
 	}
 
 }
+
+func (s *Server) Primes(in *pb.PrimeRequest, stream pb.CalculatorService_PrimesServer) error {
+	k := int64(2)
+	n := in.Number
+
+	for n > 1 {
+		if n%k == 0 {
+			stream.Send(&pb.PrimeResponse{Prime: k})
+			n = n / k
+		} else {
+			k++
+		}
+	}
+
+	return nil
+}

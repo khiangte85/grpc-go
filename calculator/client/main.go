@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"log"
 
 	"google.golang.org/grpc"
@@ -24,6 +26,7 @@ func main() {
 	c := pb.NewCalculatorServiceClient(conn)
 
 	doSum(c)
+	doPrimes(c)
 }
 
 func doSum(c pb.CalculatorServiceClient) {
@@ -39,4 +42,28 @@ func doSum(c pb.CalculatorServiceClient) {
 	}
 
 	log.Println(res)
+}
+
+func doPrimes(c pb.CalculatorServiceClient) {
+	stream, err := c.Primes(context.Background(), &pb.PrimeRequest{
+		Number: 123456789021548,
+	})
+
+	if err != nil {
+		log.Fatalf("error calling primes: %v", err)
+	}
+
+	for {
+		prime, err := stream.Recv()
+
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			log.Fatalf("Error while reading stream: %v", err)
+		}
+
+		fmt.Println(prime.Prime)
+	}
 }
