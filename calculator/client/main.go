@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -27,6 +28,7 @@ func main() {
 
 	doSum(c)
 	doPrimes(c)
+	doAverage(c)
 }
 
 func doSum(c pb.CalculatorServiceClient) {
@@ -66,4 +68,30 @@ func doPrimes(c pb.CalculatorServiceClient) {
 
 		fmt.Println(prime.Prime)
 	}
+}
+
+func doAverage(c pb.CalculatorServiceClient) {
+	nums := []float32{20, 30, 40}
+
+	stream, err := c.Average(context.Background())
+
+	if err != nil {
+		log.Fatalf("Server call error: %v \n", err)
+	}
+
+	for _, num := range nums {
+		log.Printf("Send %f to server\n", num)
+
+		stream.Send(&pb.AverageRequest{Value: num})
+
+		time.Sleep(500 * time.Millisecond)
+	}
+
+	res, err := stream.CloseAndRecv()
+
+	if err != nil {
+		log.Fatalf("Receive error from server: %v", err)
+	}
+
+	fmt.Println("Average is: ", res.Result)
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"log"
 	"net"
 
@@ -46,4 +47,28 @@ func (s *Server) Primes(in *pb.PrimeRequest, stream pb.CalculatorService_PrimesS
 	}
 
 	return nil
+}
+
+func (s *Server) Average(stream pb.CalculatorService_AverageServer) error {
+	total := float32(0.0)
+	count := 0
+
+	for {
+		reg, err := stream.Recv()
+
+		if err == io.EOF {
+			return stream.SendAndClose(&pb.AverageResponse{
+				Result: total / float32(count),
+			})
+		}
+
+		if err != nil {
+			log.Fatalf("stream receive error: %v \n", err)
+		}
+
+		log.Printf("Received %f from client\n", reg.Value)
+
+		total += reg.Value
+		count++
+	}
 }
