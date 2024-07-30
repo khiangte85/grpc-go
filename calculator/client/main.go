@@ -9,6 +9,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 
 	pb "github.com/khiangte85/grpc-go/calculator/proto"
 )
@@ -29,7 +30,8 @@ func main() {
 	// doSum(c)
 	// doPrimes(c)
 	// doAverage(c)
-	doMax(c)
+	// doMax(c)
+	doSqrt(c, -2358)
 }
 
 func doSum(c pb.CalculatorServiceClient) {
@@ -152,4 +154,23 @@ func doMax(c pb.CalculatorServiceClient) {
 	}()
 
 	<-waitc
+}
+
+func doSqrt(c pb.CalculatorServiceClient, n int32) {
+	res, err := c.Sqrt(context.Background(), &pb.SqrtRequest{Number: n})
+
+	if err != nil {
+		e, ok := status.FromError(err)
+
+		if ok {
+			log.Printf("gRPC error code: %v\n", e.Proto().GetCode())
+			log.Printf("gRPC error message: %v\n", e.Proto().GetMessage())
+		} else {
+			 log.Fatalf("non gRPC error: %v", err)
+		}
+
+		return 
+	}
+
+	log.Printf("Square root of %d is %f", n, res.Result)
 }

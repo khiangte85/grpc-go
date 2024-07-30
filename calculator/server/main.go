@@ -1,12 +1,17 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"io"
 	"log"
+	"math"
 	"net"
 
 	pb "github.com/khiangte85/grpc-go/calculator/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var addr string = "0.0.0.0:50051"
@@ -97,4 +102,14 @@ func (s *Server) Max(stream pb.CalculatorService_MaxServer) error {
 			log.Fatalf("error sending result to client stream: %v", err)
 		}
 	}
+}
+
+func (s *Server) Sqrt(ctx context.Context, req *pb.SqrtRequest) (*pb.SqrtResponse, error) {
+	var number int32 = req.Number
+
+	if number < 0 {
+		return nil, status.Errorf(codes.InvalidArgument, fmt.Sprintf("Received negative number"))
+	}
+
+	return &pb.SqrtResponse{Result: math.Sqrt(float64(number))}, nil
 }
