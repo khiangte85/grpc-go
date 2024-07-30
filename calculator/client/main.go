@@ -26,9 +26,10 @@ func main() {
 
 	c := pb.NewCalculatorServiceClient(conn)
 
-	doSum(c)
-	doPrimes(c)
-	doAverage(c)
+	// doSum(c)
+	// doPrimes(c)
+	// doAverage(c)
+	doMax(c)
 }
 
 func doSum(c pb.CalculatorServiceClient) {
@@ -71,7 +72,7 @@ func doPrimes(c pb.CalculatorServiceClient) {
 }
 
 func doAverage(c pb.CalculatorServiceClient) {
-	nums := []float32{2,5,17,3,4,9,34,24}
+	nums := []float32{2, 5, 17, 3, 4, 9, 34, 24}
 
 	stream, err := c.Average(context.Background())
 
@@ -94,4 +95,61 @@ func doAverage(c pb.CalculatorServiceClient) {
 	}
 
 	fmt.Println("Average is: ", res.Result)
+}
+
+func doMax(c pb.CalculatorServiceClient) {
+	reqs := []*pb.MaxRequest{
+		{Number: 1},
+		{Number: 6},
+		{Number: 4},
+		{Number: 17},
+		{Number: 23},
+		{Number: 14},
+		{Number: 12},
+		{Number: 40},
+		{Number: 100},
+		{Number: 10},
+	}
+
+	stream, err := c.Max(context.Background())
+
+	if err != nil {
+		log.Fatalf("error while connecting server: %v", err)
+	}
+
+	waitc := make(chan string)
+
+	go func() {
+		for _, req := range reqs {
+			log.Printf("Send : %v", req.Number)
+
+			err := stream.Send(req)
+			time.Sleep(1 * time.Second)
+
+			if err != nil {
+				log.Fatalf("error while sending stream: %v\n", err)
+			}
+
+		}
+
+		stream.CloseSend()
+	}()
+
+	go func() {
+		for {
+			res, err := stream.Recv()
+
+			if err == io.EOF {
+				log.Fatalf("all data received: %v", err)
+			}
+
+			if err != nil {
+				log.Fatalf("error while reading stream: %v", err)
+			}
+
+			log.Printf("Max: %v\n", res.Max)
+		}
+	}()
+
+	<-waitc
 }

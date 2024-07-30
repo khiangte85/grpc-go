@@ -72,3 +72,25 @@ func (s *Server) Average(stream pb.CalculatorService_AverageServer) error {
 		count++
 	}
 }
+
+func (s *Server) Max(stream pb.CalculatorService_MaxServer) error {
+	var max int32 = 0
+
+	for {
+		req, err := stream.Recv()
+
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			log.Fatalf("error reading client stream: %v", err)
+		}
+
+		if req.Number > max {
+			max = req.Number
+		}
+
+		stream.Send(&pb.MaxResponse{Max: max})
+	}
+}
