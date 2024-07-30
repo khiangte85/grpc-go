@@ -92,9 +92,12 @@ func (s *Server) GreetEveryone(stream pb.GreetService_GreetEveryoneServer) error
 
 		res := "Hello " + req.FirstName
 
-		stream.Send(&pb.GreetResponse{
+		err = stream.Send(&pb.GreetResponse{
 			Result: res,
 		})
-	}
 
+		if err != nil {
+			log.Fatalf("error while sending stream")
+		}
+	}
 }

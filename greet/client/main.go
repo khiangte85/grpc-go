@@ -110,6 +110,8 @@ func doGreetEveryone(c pb.GreetServiceClient) {
 		log.Fatalf("Error while connecting server: %v\n", err)
 	}
 
+	waitc := make(chan string)
+
 	go func() {
 
 		for _, name := range reqs {
@@ -117,17 +119,15 @@ func doGreetEveryone(c pb.GreetServiceClient) {
 			log.Println("sending ", name)
 
 			err := stream.Send(&pb.GreetRequest{FirstName: name})
+			time.Sleep(1 * time.Second)
 
 			if err != nil {
 				log.Fatalf("error while sending stream to server: %v\n", err)
 			}
-
 		}
 
 		stream.CloseSend()
 	}()
-
-	waitc := make(chan string)
 
 	go func() {
 		for {
@@ -143,7 +143,7 @@ func doGreetEveryone(c pb.GreetServiceClient) {
 				log.Fatalf("error while reading stream from server: %v\n", err)
 			}
 
-			fmt.Println("Received: ", res.Result)
+			log.Println("Received: ", res.Result)
 
 		}
 
@@ -151,5 +151,4 @@ func doGreetEveryone(c pb.GreetServiceClient) {
 	}()
 
 	<-waitc
-
 }
