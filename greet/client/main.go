@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
 	"time"
 
 	"google.golang.org/grpc"
@@ -28,7 +29,9 @@ func main() {
 
 	// doGreet(c)
 	// doGreetManyTimes(c)
-	doLongGreet(c)
+	// doLongGreet(c)
+
+	doGreetEveryone(c)
 }
 
 func doGreet(c pb.GreetServiceClient) {
@@ -92,4 +95,61 @@ func doLongGreet(c pb.GreetServiceClient) {
 	}
 
 	fmt.Println(res)
+}
+
+func doGreetEveryone(c pb.GreetServiceClient) {
+	reqs := []string{
+		"Awmtea",
+		"Tei",
+		"Sawmsawmi",
+	}
+
+	stream, err := c.GreetEveryone(context.Background())
+
+	if err != nil {
+		log.Fatalf("Error while connecting server: %v\n", err)
+	}
+
+	go func() {
+
+		for _, name := range reqs {
+
+			log.Println("sending ", name)
+
+			err := stream.Send(&pb.GreetRequest{FirstName: name})
+
+			if err != nil {
+				log.Fatalf("error while sending stream to server: %v\n", err)
+			}
+
+		}
+
+		stream.CloseSend()
+	}()
+
+	waitc := make(chan string)
+
+	go func() {
+		for {
+
+			res, err := stream.Recv()
+
+			if err == io.EOF {
+				log.Printf("Received all message from server: %v", err)
+				os.Exit(0)
+			}
+
+			if err != nil {
+				log.Fatalf("error while reading stream from server: %v\n", err)
+			}
+
+			fmt.Println("Received: ", res.Result)
+
+		}
+
+		close(waitc)
+	}()
+
+	<-waitc
+
 }

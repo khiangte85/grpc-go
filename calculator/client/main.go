@@ -71,7 +71,7 @@ func doPrimes(c pb.CalculatorServiceClient) {
 }
 
 func doAverage(c pb.CalculatorServiceClient) {
-	nums := []float32{20, 30, 40}
+	nums := []float32{2,5,17,3,4,9,34,24}
 
 	stream, err := c.Average(context.Background())
 
