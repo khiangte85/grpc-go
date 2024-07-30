@@ -6,9 +6,12 @@ import (
 	"io"
 	"log"
 	"net"
+	"time"
 
 	pb "github.com/khiangte85/grpc-go/greet/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var addr string = "0.0.0.0:50052"
@@ -100,4 +103,17 @@ func (s *Server) GreetEveryone(stream pb.GreetService_GreetEveryoneServer) error
 			log.Fatalf("error while sending stream")
 		}
 	}
+}
+
+func (s *Server) GreetWithDeadline(ctx context.Context, req *pb.GreetRequest) (*pb.GreetResponse, error) {
+	
+	for i := 0; i < 3; i++ {
+		if ctx.Err() == context.DeadlineExceeded {
+			return nil, status.Error(codes.DeadlineExceeded, "gRPC deadline exceeded")
+		}
+
+		time.Sleep(1 * time.Second)
+	}
+
+	return &pb.GreetResponse{Result: "Hello " + req.FirstName}, nil
 }

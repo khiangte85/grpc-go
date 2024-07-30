@@ -10,6 +10,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 
 	pb "github.com/khiangte85/grpc-go/greet/proto"
 )
@@ -30,8 +31,8 @@ func main() {
 	// doGreet(c)
 	// doGreetManyTimes(c)
 	// doLongGreet(c)
-
-	doGreetEveryone(c)
+	// doGreetEveryone(c)
+	doGreetWithDeadline(c, 2*time.Second)
 }
 
 func doGreet(c pb.GreetServiceClient) {
@@ -151,4 +152,24 @@ func doGreetEveryone(c pb.GreetServiceClient) {
 	}()
 
 	<-waitc
+}
+
+func doGreetWithDeadline(c pb.GreetServiceClient, timeout time.Duration) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+
+	defer cancel()
+
+	res, err := c.GreetWithDeadline(ctx, &pb.GreetRequest{FirstName: "Lalmuanawma"})
+
+	if err != nil {
+		e, ok := status.FromError(err)
+
+		if ok {
+			log.Fatalf("gRPC error: %v", e)
+		} else {
+			log.Fatalf("other error: %v", err)
+		}
+	}
+
+	log.Println(res.Result)
 }
