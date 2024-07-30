@@ -32,6 +32,12 @@ func main() {
 	// doAverage(c)
 	// doMax(c)
 	doSqrt(c, -2358)
+
+	// defer func() {
+	// 	if r := recover(); r != nil {
+	// 		fmt.Println("Recovered from panic:", r)
+	// 	}
+	// }()
 }
 
 func doSum(c pb.CalculatorServiceClient) {
@@ -157,6 +163,7 @@ func doMax(c pb.CalculatorServiceClient) {
 }
 
 func doSqrt(c pb.CalculatorServiceClient, n int32) {
+
 	res, err := c.Sqrt(context.Background(), &pb.SqrtRequest{Number: n})
 
 	if err != nil {
@@ -166,10 +173,10 @@ func doSqrt(c pb.CalculatorServiceClient, n int32) {
 			log.Printf("gRPC error code: %v\n", e.Proto().GetCode())
 			log.Printf("gRPC error message: %v\n", e.Proto().GetMessage())
 		} else {
-			 log.Fatalf("non gRPC error: %v", err)
+			log.Fatalf("non gRPC error: %v", err)
 		}
 
-		return 
+		return
 	}
 
 	log.Printf("Square root of %d is %f", n, res.Result)
