@@ -91,6 +91,10 @@ func (s *Server) Max(stream pb.CalculatorService_MaxServer) error {
 			max = req.Number
 		}
 
-		stream.Send(&pb.MaxResponse{Max: max})
+		err = stream.Send(&pb.MaxResponse{Max: max})
+
+		if err != nil {
+			log.Fatalf("error sending result to client stream: %v", err)
+		}
 	}
 }
