@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
 
 	pb "github.com/khiangte85/grpc-go/greet/proto"
@@ -18,7 +18,21 @@ import (
 var addr string = "localhost:50052"
 
 func main() {
-	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	tls := true
+	opts := []grpc.DialOption{}
+
+	if tls {
+		certFile := "ssl/ca.crt"
+		creds, err := credentials.NewClientTLSFromFile(certFile, "")
+
+		if err != nil {
+			log.Fatalf("failed to load cert file: %v\n", certFile)
+		}
+
+		opts = append(opts, grpc.WithTransportCredentials(creds))
+	}
+
+	conn, err := grpc.NewClient(addr, opts...)
 
 	if err != nil {
 		log.Printf("Failed to connect: %v", err)
@@ -31,8 +45,8 @@ func main() {
 	// doGreet(c)
 	// doGreetManyTimes(c)
 	// doLongGreet(c)
-	// doGreetEveryone(c)
-	doGreetWithDeadline(c, 2*time.Second)
+	doGreetEveryone(c)
+	// doGreetWithDeadline(c, 2*time.Second)
 }
 
 func doGreet(c pb.GreetServiceClient) {
