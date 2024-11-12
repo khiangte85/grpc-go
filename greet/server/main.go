@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
 )
 
@@ -30,7 +31,7 @@ func main() {
 
 	log.Printf("Listen on %v\n", addr)
 
-	tls := true
+	tls := false
 	opts := []grpc.ServerOption{}
 
 	if tls {
@@ -46,6 +47,7 @@ func main() {
 	}
 
 	s := grpc.NewServer(opts...)
+	reflection.Register(s)
 	pb.RegisterGreetServiceServer(s, &Server{})
 
 	if err = s.Serve(lis); err != nil {
